@@ -160,8 +160,7 @@
 
             videoElement.volume = 0.5;
             volumeControl.value = 0.5;
-            // timelaps.max = videoElement.duration; // Убрано, так как duration еще не доступен
-            currentTimeDisplay.textContent = `0:00 / 0:00`; // Временная инициализация
+            currentTimeDisplay.textContent = `0:00 / 0:00`;
 
             //* Initialize video metadata
             videoElement.addEventListener("loadedmetadata", function () {
