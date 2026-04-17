@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <style>
+            body {
+                background-color: #333;
+                color: white;
+                font-family: Arial, sans-serif;
+            }
+            .player {
+                position: relative;
+                width: 900px;
+                margin: 20px auto;
+            }
+            .video {
+                width: 900px;
+            }
+            .player:hover .controls {
+                opacity: 1;
+            }
+            .play-big {
+                position: absolute;
+                font-size: 50px;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                cursor: pointer;
+                opacity: 0.8;
+            }
+            .controls {
+                bottom: 4px;
+                height: 48px;
+                width: 100%;
+                position: absolute;
+                background-color: rgba(0, 0, 0, 0.39);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            .play {
+                position: absolute;
+                font-size: 25px;
+                left: 0px;
+                bottom: 0px;
+                cursor: pointer;
+                padding: 5px;
+                padding-bottom: 10px;
+                padding-left: 8px;
+            }
+            .volume-btn {
+                position: absolute;
+                left: 40px;
+                bottom: 12px;
+                top: auto;
+                cursor: pointer;
+                font-size: 20px;
+            }
+            .video-volume {
+                width: 80px;
+                position: absolute;
+                left: 70px;
+                bottom: 10px;
+            }
+            .current-time {
+                position: absolute;
+                left: 160px;
+                bottom: 12px;
+                top: auto;
+                color: white;
+            }
+            .timelaps {
+                width: 63%;
+                position: absolute;
+                left: 240px;
+                bottom: 10px;
+                top: auto;
+            }
+            .settings {
+                position: absolute;
+                right: 50px;
+                bottom: 10px;
+                cursor: pointer;
+                font-size: 25px;
+            }
+            .fullscreen {
+                position: absolute;
+                bottom: 10px;
+                right: 12px;
+                cursor: pointer;
+                font-size: 25px;
+            }
+            .player:fullscreen .video {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+            .player:fullscreen .timelaps {
+                width: 78%;
+            }
+            .player:fullscreen .settings {
+                right: 60px;
+            }
+            .player:fullscreen .controls {
+                bottom: 0px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="player">
+            <video class="video" src="Video.MP4"></video>
+            <i
+                class="fa-regular fa-circle-play play-big"
+                style="color: rgb(255, 255, 255)"
+            ></i>
+            <div class="controls">
+                <i
+                    class="fa-regular fa-circle-play play"
+                    style="color: rgb(255, 255, 255)"
+                ></i>
+                <i
+                    class="fa-solid fa-volume-high volume-btn"
+                    style="color: rgb(255, 255, 255)"
+                ></i>
+                <input
+                    class="video-volume"
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                />
+                <span class="current-time">0:00</span>
+                <input class="timelaps" type="range" min="0" step="0.1" />
+                <i
+                    class="fa-solid fa-gear settings"
+                    style="color: rgb(255, 255, 255)"
+                ></i>
+                <i
+                    class="fa-solid fa-expand fullscreen"
+                    style="color: rgb(255, 255, 255)"
+                ></i>
+            </div>
+        </div>
+
+        <script
+            src="https://kit.fontawesome.com/e15102c941.js"
+            crossorigin="anonymous"
+        ></script>
+        <script>
+            const player = document.querySelector(".player");
+            const videoElement = document.querySelector("video");
+            const playBigButton = document.querySelector(".play-big");
+            const volumeControl = document.querySelector(".video-volume");
+            const playButton = document.querySelector(".play");
+            const timelaps = document.querySelector(".timelaps");
+            const currentTimeDisplay = document.querySelector(".current-time");
+            const fullscreenButton = document.querySelector(".fullscreen");
+            const volumeBtn = document.querySelector(".volume-btn");
+
+            videoElement.volume = 0.5;
+            volumeControl.value = 0.5;
+            // timelaps.max = videoElement.duration; // Убрано, так как duration еще не доступен
+            currentTimeDisplay.textContent = `0:00 / 0:00`; // Временная инициализация
+
+            //* Initialize video metadata
+            videoElement.addEventListener("loadedmetadata", function () {
+                timelaps.max = videoElement.duration;
+                currentTimeDisplay.textContent = `0:00 / ${Math.floor(videoElement.duration / 60)}:${Math.floor(
+                    videoElement.duration % 60,
+                )
+                    .toString()
+                    .padStart(2, "0")}`;
+            });
+            //* Video playback control
+            playButton.addEventListener("click", function (e) {
+                if (videoElement.paused) {
+                    videoElement.play();
+                    playButton.classList.remove("fa-circle-play");
+                    playButton.classList.add("fa-circle-pause");
+                } else {
+                    videoElement.pause();
+                    playButton.classList.remove("fa-circle-pause");
+                    playButton.classList.add("fa-circle-play");
+                }
+            });
+
+            playBigButton.addEventListener("click", function (e) {
+                videoElement.play();
+                playBigButton.style.display = "none";
+            });
+
+            //* Volume control
+            volumeControl.addEventListener("input", function (e) {
+                videoElement.volume = e.target.value;
+                if (videoElement.volume > 0 && videoElement.volume < 0.5) {
+                    volumeBtn.classList.remove("fa-volume-off");
+                    volumeBtn.classList.remove("fa-volume-high");
+                    volumeBtn.classList.add("fa-volume-low");
+                } else if (videoElement.volume >= 0.5) {
+                    volumeBtn.classList.remove("fa-volume-low");
+                    volumeBtn.classList.add("fa-volume-high");
+                } else {
+                    volumeBtn.classList.remove("fa-volume-low");
+                    volumeBtn.classList.add("fa-volume-off");
+                }
+            });
+
+            volumeBtn.addEventListener("click", function (e) {
+                if (videoElement.volume > 0) {
+                    videoElement.volume = 0;
+                    volumeControl.value = 0;
+                    volumeBtn.classList.remove("fa-volume-high");
+                    volumeBtn.classList.add("fa-volume-off");
+                } else {
+                    videoElement.volume = 1;
+                    volumeControl.value = 1;
+                    volumeBtn.classList.remove("fa-volume-off");
+                    volumeBtn.classList.add("fa-volume-high");
+                }
+            });
+
+            //* Play/pause control by clicking on the video
+            videoElement.addEventListener("click", function (e) {
+                if (videoElement.paused) {
+                    videoElement.play();
+                    if (playBigButton.style.display !== "none") {
+                        playBigButton.style.display = "none";
+                    }
+                } else {
+                    videoElement.pause();
+                }
+            });
+
+            //* Update play button state on video events
+            videoElement.addEventListener("play", function () {
+                playButton.classList.remove("fa-circle-play");
+                playButton.classList.add("fa-circle-pause");
+            });
+
+            videoElement.addEventListener("pause", function () {
+                playButton.classList.remove("fa-circle-pause");
+                playButton.classList.add("fa-circle-play");
+            });
+
+            videoElement.addEventListener("ended", function () {
+                playButton.classList.remove("fa-circle-pause");
+                playButton.classList.add("fa-circle-play");
+                playBigButton.style.display = "block";
+            });
+
+            //* Update current time display and timelaps slider
+            videoElement.addEventListener("timeupdate", function (e) {
+                const currentTime = videoElement.currentTime;
+                const minutes = Math.floor(currentTime / 60);
+                const seconds = Math.floor(currentTime % 60);
+                const formattedTime = `${minutes}:${seconds.toString().padStart(2, "0")} / ${Math.floor(videoElement.duration / 60)}:${Math.floor(
+                    videoElement.duration % 60,
+                )
+                    .toString()
+                    .padStart(2, "0")}`;
+                currentTimeDisplay.textContent = formattedTime;
+                timelaps.value = currentTime;
+            });
+
+            //* Seek video by changing timelaps slider
+            timelaps.addEventListener("input", function (e) {
+                e.stopPropagation();
+                videoElement.currentTime = timelaps.value;
+            });
+
+            //* Fullscreen control
+            fullscreenButton.addEventListener("click", function (e) {
+                if (!document.fullscreenElement) {
+                    player.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            });
+        </script>
+    </body>
+</html>
